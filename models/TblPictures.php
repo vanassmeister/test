@@ -27,7 +27,8 @@ class TblPictures extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['original_name'], 'string', 'max' => 255],
+            [['base_name'], 'string', 'max' => 255],
+            [['extension'], 'string', 'max' => 4],
         ];
     }
 

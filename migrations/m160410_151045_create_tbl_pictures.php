@@ -8,7 +8,9 @@ class m160410_151045_create_tbl_pictures extends Migration
     {
         $this->createTable('tbl_pictures', [
             'id' => $this->primaryKey(),
-            'original_name' => $this->string(),
+            'base_name' => $this->string(),
+            'extension' => $this->string(4),
+            'mime_type' => $this->string(),
             'body' => $this->binary()
         ]);
     }

@@ -8,11 +8,16 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\web\UploadedFile;
 use yii\web\HttpException;
+use yii\web\ServerErrorHttpException;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\UploadForm;
 use app\models\TblPictures;
+
+use Imagine\Image\Box;
+use Imagine\Gd\Imagine;
+
 
 class SiteController extends Controller {
 
@@ -115,11 +120,12 @@ class SiteController extends Controller {
             mkdir($savePath);
         }
 
-        $fileName = $model->file->baseName . '.' . $model->file->extension;
-        
         $picture = new TblPictures();
-        $picture->original_name = $fileName;
+        $picture->base_name = $model->file->baseName;
+        $picture->extension = $model->file->extension;
+        $picture->mime_type = $model->file->type;
         $picture->body = fopen($model->file->tempName, "r");
+        
         if(!$picture->save()) {
             return [
                 'status' => 'error',
@@ -130,8 +136,52 @@ class SiteController extends Controller {
         return [
             'status' => 'ok',
             'files' => [
-                0 => ['name' => $fileName]
+                0 => ['name' => "{$picture->id}.{$picture->extension}"]
             ]
         ];   
+    }
+    
+    public function actionDownload($id, $extension) {
+        $dbPicture = TblPictures::findOne(['id' => $id, 'extension' => $extension]);
+        if(!$dbPicture) {
+            throw new HttpException(404, "Изображение с id = $id не найдено в БД");
+        }
+        
+        $publishedName = Yii::getAlias("@webroot/assets/images/$id.$extension");        
+        if(!file_exists($publishedName)) {
+            
+            $path = pathinfo($publishedName, PATHINFO_DIRNAME);
+            if(!is_dir($path)) {
+                mkdir($path, 0755, true);
+            }            
+            
+            $imagine = new Imagine();
+            
+            $stream = fopen('php://memory','r+');
+            fwrite($stream, $dbPicture->body);
+            rewind($stream);            
+            
+            $image = $imagine->read($stream);
+            
+            $maxSize = new Box(100, 100);
+            if(!$maxSize->contains($image->getSize())) {
+                $ratio = min(array(
+                    $maxSize->getHeight()/$image->getSize()->getHeight(), 
+                    $maxSize->getWidth()/$image->getSize()->getWidth()
+                ));            
+
+                $image->resize($image->getSize()->scale($ratio));
+            } 
+            
+            $image->save($publishedName);
+        }
+        
+        $response = Yii::$app->getResponse();
+        $response->headers->set('Content-Type', $dbPicture->mime_type);
+        $response->format = Response::FORMAT_RAW;
+        if (!is_resource($response->stream = fopen($publishedName, 'r')) ) {
+           throw new ServerErrorHttpException("Опубликованный файл $publishedName не может быть прочитан");
+        }
+        return $response->send();        
     }
 }

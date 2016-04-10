@@ -42,6 +42,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '/assets/images/<id:\d+>.<extension:\w+>' => 'site/download',
             ],
         ],
     ],
