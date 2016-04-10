@@ -26,11 +26,11 @@ use yii\web\JsExpression;
                 'url' => ['site/upload'],
                 'options' => ['accept' => 'image/*'],
                 'clientOptions' => [
-                    'maxFileSize' => 2000000,
                     'acceptFileTypes' => new JsExpression('/(\.|\/)(gif|jpe?g|png)$/i')
                 ],
                 'clientEvents' => [
                     'fileuploaddone' => 'window.onFileUploadDone',
+                    'fileuploadadd' => 'window.onFileUploadAdd',
                 ],
             ]);?>            
 

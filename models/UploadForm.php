@@ -22,7 +22,8 @@ class UploadForm extends Model {
      */
     public function rules() {
         return [
-           [['file'], 'image',  'mimeTypes' => ['image/png','image/jpeg','image/gif'], 'skipOnEmpty' => false],
+           [['file'], 'image',  'mimeTypes' => ['image/png','image/jpeg','image/gif'], 
+                'skipOnEmpty' => false, 'wrongMimeType' => 'Недопустимый тип файла, разрешены типы gif, jpeg, png (серверная валидация)'],
         ];
     }
 }
