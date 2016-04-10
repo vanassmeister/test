@@ -3,45 +3,21 @@
 namespace app\controllers;
 
 use Yii;
-use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\web\UploadedFile;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
+
 use app\models\UploadForm;
 use app\models\TblPictures;
+use app\components\Pictures;
 
 use Imagine\Image\Box;
 use Imagine\Gd\Imagine;
 
 
 class SiteController extends Controller {
-
-    public function behaviors() {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
 
     public function actions() {
         return [
@@ -53,45 +29,16 @@ class SiteController extends Controller {
 
     public function actionIndex() {
         $model = new UploadForm();
+        
+        $this->view->registerJsFile('js/main.js', ['depends' => [
+            'app\assets\AppAsset',
+        ]]);        
+        
+        $pictures = TblPictures::find()->all();
         return $this->render('index', [
-            'model' => $model
+            'model' => $model,
+            'pictures' => Pictures::widget(['pictures' => $pictures])
         ]);
-    }
-
-    public function actionLogin() {
-        if (!\Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
-        return $this->render('login', [
-                    'model' => $model,
-        ]);
-    }
-
-    public function actionLogout() {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
-    }
-
-    public function actionContact() {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-                    'model' => $model,
-        ]);
-    }
-
-    public function actionAbout() {
-        return $this->render('about');
     }
 
     public function actionUpload() {
@@ -111,7 +58,7 @@ class SiteController extends Controller {
         if(!$model->validate()) {
             return [
                 'status' => 'error',
-                'errors' => $model->getErrors()
+                'errors' => $model->getErrors('file')
             ];            
         }
         
@@ -133,11 +80,14 @@ class SiteController extends Controller {
             ];              
         }
         
+        $pictures = TblPictures::find()->all();
+        
         return [
             'status' => 'ok',
             'files' => [
                 0 => ['name' => "{$picture->id}.{$picture->extension}"]
-            ]
+            ],
+            'html' => Pictures::widget(['pictures' => $pictures])
         ];   
     }
     
@@ -183,5 +133,20 @@ class SiteController extends Controller {
            throw new ServerErrorHttpException("Опубликованный файл $publishedName не может быть прочитан");
         }
         return $response->send();        
+    }
+    
+    public function actionPictures() {
+        $pictures = TblPictures::find()->all();
+        return Pictures::widget(['pictures' => $pictures]);
+    }
+    
+    public function actionClean() {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        TblPictures::deleteAll();
+        $imagesPath = Yii::getAlias('@webroot/assets/images').'/*';
+        exec("rm -f $imagesPath");
+        
+        return ['status' => 'ok'];
     }
 }

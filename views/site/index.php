@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = 'Тестовое задание';
 
 use yii\helpers\Html;
 use dosamigos\fileupload\FileUpload;
@@ -11,7 +11,15 @@ use yii\web\JsExpression;
 ?>
 <div class="site-index">
     <div class="body-content">
+        <div class="row" id="pictures_container">
+            <?=$pictures?>
+        </div>
         <div class="row">
+            <div class="alert alert-danger alert-dismissible" style="display: none" id="upload_error" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>Ошибка при загрузке файла!</strong>
+                <span class="error-text">Indicates a warning that might need attention.</span>
+            </div>
             <?= FileUpload::widget([
                 'model' => $model,
                 'attribute' => 'file',
@@ -21,22 +29,13 @@ use yii\web\JsExpression;
                     'maxFileSize' => 2000000,
                     'acceptFileTypes' => new JsExpression('/(\.|\/)(gif|jpe?g|png)$/i')
                 ],
-                // Also, you can specify jQuery-File-Upload events
-                // see: https://github.com/blueimp/jQuery-File-Upload/wiki/Options#processing-callback-options
                 'clientEvents' => [
-                    'fileuploaddone' => 'function(e, data) {
-                                            console.log(e);
-                                            console.log(data);
-                                        }',
-                    'fileuploadfail' => 'function(e, data) {
-                                            console.log(e);
-                                            console.log(data);
-                                        }',
+                    'fileuploaddone' => 'window.onFileUploadDone',
                 ],
             ]);?>            
 
-            <?=Html::button('Очистка хранилища', ['class' => 'btn btn-default'])?>
-            <?=Html::button('Перечитать данные с сервера', ['class' => 'btn btn-default'])?>
+            <?=Html::button('Очистка хранилища', ['class' => 'btn btn-default', 'id' => 'button_clean'])?>
+            <?=Html::button('Перечитать данные с сервера', ['class' => 'btn btn-default', 'id' => 'button_reload'])?>
         </div>
     </div>
 </div>
