@@ -1,8 +1,10 @@
 <?php
 
+$dbFile = realpath(__DIR__."/../runtime")."/data.db";
+
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
+    'dsn' => "sqlite:$dbFile",
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8',
