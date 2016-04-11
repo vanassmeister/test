@@ -1,16 +1,15 @@
 <?php
-
 /*
  * @author Ivan Nikiforov
  * Apr 10, 2016
  */
-
 namespace app\models;
 
 use yii\base\Model;
 use yii\web\UploadedFile;
 
-class UploadForm extends Model {
+class UploadForm extends Model
+{
 
     /**
      * @var UploadedFile file attribute
@@ -20,9 +19,10 @@ class UploadForm extends Model {
     /**
      * @return array the validation rules.
      */
-    public function rules() {
+    public function rules()
+    {
         return [
-           [['file'], 'image',  'mimeTypes' => ['image/png','image/jpeg','image/gif'], 
+            [['file'], 'image', 'mimeTypes' => ['image/png', 'image/jpeg', 'image/gif'],
                 'skipOnEmpty' => false, 'wrongMimeType' => 'Недопустимый тип файла, разрешены типы gif, jpeg, png (серверная валидация)'],
         ];
     }

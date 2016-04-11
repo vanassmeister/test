@@ -1,6 +1,4 @@
-<?php
-
-namespace app\models;
+<?php namespace app\models;
 
 use Yii;
 
@@ -13,6 +11,7 @@ use Yii;
  */
 class TblPictures extends \yii\db\ActiveRecord
 {
+
     /**
      * @inheritdoc
      */
@@ -43,8 +42,9 @@ class TblPictures extends \yii\db\ActiveRecord
             'body' => 'Body',
         ];
     }
-    
-    public function getPictureUrl() {
+
+    public function getPictureUrl()
+    {
         return "/assets/images/{$this->id}.{$this->extension}";
     }
 }
