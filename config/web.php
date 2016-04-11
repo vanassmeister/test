@@ -45,8 +45,17 @@ $config = [
                 '/assets/images/<id:\d+>.<extension:\w+>' => 'site/download',
             ],
         ],
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                ],
+            ],
+        ],        
     ],
     'params' => $params,
+    'language' => 'ru-RU',
+    'sourceLanguage' => 'en-US',    
 ];
 
 if (YII_ENV_DEV) {
